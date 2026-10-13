@@ -452,6 +452,22 @@ def humanoid_skin(base: tuple[int, int, int], accent: tuple[int, int, int],
     return img
 
 
+def build_preview_sheet(folder: Path, output: Path, columns: int = 12, scale: int = 4) -> None:
+    """Собирает все иконки папки в одну картинку-превью (для документации и быстрой проверки)."""
+    files = sorted(folder.glob("*.png"))
+    if not files:
+        return
+    pad, cell = 2, 16 * scale + 2
+    rows = (len(files) + columns - 1) // columns
+    sheet = Image.new("RGBA", (columns * cell, rows * cell), (40, 40, 48, 255))
+    for index, path in enumerate(files):
+        image = Image.open(path).convert("RGBA").resize((16 * scale, 16 * scale), Image.NEAREST)
+        sheet.paste(image, ((index % columns) * cell + pad, (index // columns) * cell + pad), image)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(output)
+    print(f"  превью: {output.relative_to(ROOT)} ({len(files)} иконок)")
+
+
 # ------------------------------------------------- агрегация: что и куда писать
 
 WEAPON_KINDS = ["dagger", "sword", "greatsword", "axe", "spear", "mace"]
@@ -523,6 +539,9 @@ def main() -> None:
             save(img, TEX / f"models/armor/{cls}_layer_{layer}.png")
             count += 1
 
+    # контрольный лист (превью) — чтобы одним взглядом видеть все иконки
+    build_preview_sheet(TEX / "item", ROOT / "docs/preview/textures_items.png", columns=12)
+    build_preview_sheet(TEX / "block", ROOT / "docs/preview/textures_blocks.png", columns=8)
     print(f"готово, файлов текстур: {count}")
 
 
