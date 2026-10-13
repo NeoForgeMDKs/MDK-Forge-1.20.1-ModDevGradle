@@ -1,0 +1,18 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 56,
+    "separation": 24,
+    "salt": 710002
+  },
+  "structures": [
+    {
+      "structure": "rpgmod:surface_castle",
+      "weight": 1
+    },
+    {
+      "structure": "rpgmod:surface_tower",
+      "weight": 2
+    }
+  ]
+}

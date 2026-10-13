@@ -17,6 +17,18 @@ public final class ClientPlayerData {
 
     private ClientPlayerData() {}
 
+    /** Сброс при выходе из мира: пока не придёт пакет с сервера, показываем значения по умолчанию. */
+    @ApiStatus.Internal
+    public static void reset() {
+        level = 1;
+        statPoints = 0;
+        spentStrength = 0;
+        spentVitality = 0;
+        spentIntellect = 0;
+        mana = 0.0F;
+        maxMana = 50.0F;
+    }
+
     @ApiStatus.Internal
     public static void set(int level, int statPoints, int spentStrength, int spentVitality,
                            int spentIntellect, float mana, float maxMana) {

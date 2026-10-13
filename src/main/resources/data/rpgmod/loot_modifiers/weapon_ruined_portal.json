@@ -1,0 +1,12 @@
+{
+  "type": "rpgmod:add_weapon",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/ruined_portal"
+    }
+  ],
+  "min_level": 1,
+  "max_level": 4,
+  "hone_chance": 0.1
+}

@@ -3,8 +3,10 @@ package com.closky.rpgmod.player;
 import com.closky.rpgmod.RpgMod;
 import com.closky.rpgmod.enemy.EnemyLevelHelper;
 import com.closky.rpgmod.item.WeaponData;
+import com.closky.rpgmod.network.SyncPlayerDataPacket;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -80,6 +82,27 @@ public class RpgCommands {
                             ctx.getSource().sendSuccess(() -> Component.literal("Очки характеристик сброшены"), true);
                             return 1;
                         }))
+                .then(Commands.literal("spend")
+                        .then(Commands.argument("stat", StringArgumentType.word())
+                                .suggests((ctx, builder) -> {
+                                    for (StatType type : StatType.values()) builder.suggest(type.getId());
+                                    return builder.buildFuture();
+                                })
+                                .executes(ctx -> {
+                                    ServerPlayer player = ctx.getSource().getPlayerOrException();
+                                    StatType type = StatType.byId(StringArgumentType.getString(ctx, "stat"));
+                                    RpgPlayerData data = RpgPlayerData.get(player);
+                                    if (!data.spendStatPoint(type)) {
+                                        ctx.getSource().sendFailure(Component.translatable("msg.rpgmod.no_stat_points"));
+                                        return 0;
+                                    }
+                                    PlayerProgressionHandler.applyStatBonuses(player);
+                                    SyncPlayerDataPacket.sendTo(player, data);
+                                    ctx.getSource().sendSuccess(() -> Component.translatable("msg.rpgmod.stat_spent",
+                                            Component.translatable(type.getTranslationKey()),
+                                            Component.literal(String.valueOf(data.getStatPoints()))), false);
+                                    return 1;
+                                })))
                 .then(Commands.literal("enemy")
                         .executes(ctx -> {
                             ServerPlayer player = ctx.getSource().getPlayerOrException();

@@ -1,0 +1,24 @@
+{
+  "type": "rpgmod:add_weapon",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/stronghold_library"
+    },
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/stronghold_corridor"
+    },
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/stronghold_crossing"
+    },
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/stronghold_catacombs"
+    }
+  ],
+  "min_level": 4,
+  "max_level": 9,
+  "hone_chance": 0.35
+}

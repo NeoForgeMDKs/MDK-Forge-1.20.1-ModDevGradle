@@ -1,5 +1,6 @@
 package com.closky.rpgmod.network;
 
+import com.closky.rpgmod.player.PlayerProgressionHandler;
 import com.closky.rpgmod.player.RpgPlayerData;
 import com.closky.rpgmod.player.StatType;
 import net.minecraft.network.FriendlyByteBuf;
@@ -37,7 +38,7 @@ public class SpendStatPointPacket {
             if (msg.statOrdinal < 0 || msg.statOrdinal >= values.length) return; // защита от подделки пакета
             RpgPlayerData data = RpgPlayerData.get(player);
             if (data.spendStatPoint(values[msg.statOrdinal])) {
-                data.applyBonuses(player);
+                PlayerProgressionHandler.applyStatBonuses(player);
                 SyncPlayerDataPacket.sendTo(player, data);
             }
         });

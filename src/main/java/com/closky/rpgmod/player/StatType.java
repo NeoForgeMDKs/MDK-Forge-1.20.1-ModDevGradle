@@ -35,4 +35,12 @@ public enum StatType {
     public String getDescriptionKey() {
         return "stat.rpgmod." + id + ".desc";
     }
+
+    /** Поиск характеристики по её id (используется командой /rpg spend). */
+    public static StatType byId(String id) {
+        for (StatType type : values()) {
+            if (type.id.equalsIgnoreCase(id)) return type;
+        }
+        return STRENGTH;
+    }
 }

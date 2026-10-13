@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "rpgmod:rune_bricks",
+    "rpgmod:cracked_rune_bricks",
+    "rpgmod:gilded_rune_bricks"
+  ]
+}
