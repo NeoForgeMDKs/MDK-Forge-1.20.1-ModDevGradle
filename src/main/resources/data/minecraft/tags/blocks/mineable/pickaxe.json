@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "rpgmod:rune_bricks",
+    "rpgmod:cracked_rune_bricks",
+    "rpgmod:gilded_rune_bricks",
+    "rpgmod:frost_bricks",
+    "rpgmod:ember_bricks",
+    "rpgmod:soul_lamp",
+    "rpgmod:boss_altar",
+    "rpgmod:village_hearth"
+  ]
+}
