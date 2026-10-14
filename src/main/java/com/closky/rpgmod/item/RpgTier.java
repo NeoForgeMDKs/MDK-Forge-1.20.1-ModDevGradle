@@ -1,6 +1,6 @@
 package com.closky.rpgmod.item;
 
-import net.minecraft.world.item.Ingredient;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.Tier;
 
 /**

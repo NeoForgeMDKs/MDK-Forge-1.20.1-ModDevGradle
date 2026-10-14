@@ -277,6 +277,33 @@ def check_entity_assets() -> None:
     print("  текстуры сущностей и брони на месте")
 
 
+# ------------------------------------------- 6. грабли компиляции (проверено на практике)
+
+# pattern -> пояснение, что делать
+FORBIDDEN_JAVA_PATTERNS = [
+    (r"import\s+org\.jetbrains\.annotations\.",
+     "аннотаций org.jetbrains.annotations нет на classpath проекта (ModDevGradle 1.20.1). "
+     "Уберите импорт: компилятор их не требует, а IDE подскажет типы и так."),
+    (r"import\s+net\.minecraft\.world\.item\.Ingredient;",
+     "Ingredient лежит в net.minecraft.world.item.crafting.Ingredient (в 1.20.1)."),
+    (r"damageSources\(\)\.source\(\s*[A-Za-z_][A-Za-z0-9_.]*\s*\);",
+     "в 1.20.1 метод DamageSources#source(ResourceKey) приватный — "
+     "вызывайте source(key, cause, direct), например source(KEY, null, null)."),
+    (r"VillagerTrades\.BasicItemListing",
+     "класса BasicItemListing нет в 1.20.1 — используйте VillagerTrades.ItemsForEmeralds / "
+     "VillagerTrades.EmeraldForItems."),
+]
+
+
+def check_java_patterns() -> None:
+    for path in sorted(JAVA.rglob("*.java")):
+        text = path.read_text(encoding="utf-8")
+        for pattern, advice in FORBIDDEN_JAVA_PATTERNS:
+            if re.search(pattern, text):
+                fail(f"{path.relative_to(ROOT)}: {advice}")
+    print(f"  java-файлов проверено на известные грабли: {len(list(JAVA.rglob('*.java')))}")
+
+
 def main() -> int:
     ru, en = load_lang("ru_ru"), load_lang("en_us")
     print("Проверка ресурсов мода:")
@@ -285,6 +312,7 @@ def main() -> int:
     check_lang(ru, en)
     check_data_references()
     check_entity_assets()
+    check_java_patterns()
     if problems:
         print(f"\nНайдено проблем: {len(problems)}")
         for problem in problems:

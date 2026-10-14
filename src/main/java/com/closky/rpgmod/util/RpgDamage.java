@@ -27,14 +27,14 @@ public final class RpgDamage {
     }
 
     public static DamageSource bleeding(Entity victim) {
-        return victim.damageSources().source(BLEEDING);
+        return victim.damageSources().source(BLEEDING, null, null);
     }
 
     public static DamageSource frostbite(Entity victim) {
-        return victim.damageSources().source(FROSTBITE);
+        return victim.damageSources().source(FROSTBITE, null, null);
     }
 
     public static DamageSource shock(Entity victim) {
-        return victim.damageSources().source(SHOCK);
+        return victim.damageSources().source(SHOCK, null, null);
     }
 }

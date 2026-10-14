@@ -9,7 +9,6 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.common.loot.LootModifier;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Глобальный лут-модификатор: добавляет случайное оружие в ЛЮБОЙ сундук, к которому мы
@@ -36,7 +35,6 @@ public class AddWeaponLootModifier extends LootModifier {
         this.honeChance = honeChance;
     }
 
-    @NotNull
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         generatedLoot.add(WeaponRoller.roll(context.getRandom(), minLevel, maxLevel, honeChance));

@@ -6,7 +6,6 @@ import com.closky.rpgmod.registry.ModItems;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -54,20 +53,23 @@ public class VillageTradesHandler {
     }
 
     private static void addArmorTrades(VillagerTradesEvent event, PlayerClass playerClass) {
-        event.getTrades().get(1).add(trade(Items.EMERALD, 5,
-                ModItems.getArmor(playerClass, ArmorItem.Type.BOOTS).get(), 1, 10));
-        event.getTrades().get(2).add(trade(Items.EMERALD, 8,
-                ModItems.getArmor(playerClass, ArmorItem.Type.LEGGINGS).get(), 1, 15));
-        event.getTrades().get(3).add(trade(Items.EMERALD, 12,
-                ModItems.getArmor(playerClass, ArmorItem.Type.CHESTPLATE).get(), 1, 20));
-        event.getTrades().get(4).add(trade(Items.EMERALD, 10,
-                ModItems.getArmor(playerClass, ArmorItem.Type.HELMET).get(), 1, 25));
+        event.getTrades().get(1).add(sell(5, ModItems.getArmor(playerClass, ArmorItem.Type.BOOTS), 1, 10));
+        event.getTrades().get(2).add(sell(8, ModItems.getArmor(playerClass, ArmorItem.Type.LEGGINGS), 1, 15));
+        event.getTrades().get(3).add(sell(12, ModItems.getArmor(playerClass, ArmorItem.Type.CHESTPLATE), 1, 20));
+        event.getTrades().get(4).add(sell(10, ModItems.getArmor(playerClass, ArmorItem.Type.HELMET), 1, 25));
     }
 
-    private static VillagerTrades.ItemListing trade(net.minecraft.world.item.Item currency, int price,
-                                                    net.minecraft.world.item.Item result, int count, int xp) {
-        return new VillagerTrades.BasicItemListing(
-                new ItemStack(currency, price), new ItemStack(result, count), 8, xp);
+    /**
+     * Житель продаёт предмет за изумруды.
+     *
+     * @param emeraldCost сколько изумрудов хочет житель
+     * @param result      что он даёт
+     * @param count       сколько даёт
+     * @param xp          опыт жителя за сделку
+     */
+    private static VillagerTrades.ItemListing sell(int emeraldCost, net.minecraft.world.item.Item result,
+                                                   int count, int xp) {
+        return new VillagerTrades.ItemsForEmeralds(result, emeraldCost, count, 12, xp);
     }
 
     private VillageTradesHandler() {}

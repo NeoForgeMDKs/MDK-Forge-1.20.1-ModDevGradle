@@ -9,7 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class RpgArmorItem extends ArmorItem {
     private final PlayerClass playerClass;
 
     public RpgArmorItem(PlayerClass playerClass, ArmorItem.Type type, ArmorMaterial material, Properties properties) {
-        super(type, material, properties);
+        super(material, type, properties);
         this.playerClass = playerClass;
     }
 
@@ -30,7 +29,7 @@ public class RpgArmorItem extends ArmorItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.rpgmod.set_part",
                         Component.translatable(playerClass.getTranslationKey()).withStyle(playerClass.getColor()))
                 .withStyle(ChatFormatting.GRAY));
