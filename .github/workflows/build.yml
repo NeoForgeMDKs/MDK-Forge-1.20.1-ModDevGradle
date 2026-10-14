@@ -27,5 +27,50 @@ jobs:
       - name: Validate assets (lang, models, data JSON, structures)
         run: python3 tools/validate_assets.py
 
+      # Сборка. continue-on-error нужен, чтобы следующий шаг успел напечатать ошибки
+      # компиляции в аннотации и job summary (их видно без входа в GitHub и читает API).
       - name: Build with Gradle
-        run: ./gradlew build
+        id: gradle_build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew build 2>&1 | tee gradle-build.log
+
+      - name: Report build errors
+        if: steps.gradle_build.outcome != 'success'
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re, pathlib
+
+          log_path = pathlib.Path("gradle-build.log")
+          lines = log_path.read_text(errors="replace").splitlines() if log_path.exists() else []
+          pattern = re.compile(r"error:|\.java:\d+:|What went wrong|> Task .*FAILED|Caused by:|FAILURE:|Could not resolve|Execution failed")
+
+          hits = [line for line in lines if pattern.search(line)]
+          if not hits:
+              hits = lines[-120:]
+          text = "\n".join(hits[:200])
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary:
+              with open(summary, "a", encoding="utf-8") as handle:
+                  handle.write("## Ошибки сборки\n\n```\n" + text + "\n```\n")
+
+          print(f"Найдено строк с ошибками: {len(hits)}")
+          for line in hits[:40]:
+              print("::error::" + line.strip().replace("\n", " ")[:900])
+          PY
+
+      - name: Upload build log
+        if: steps.gradle_build.outcome != 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: gradle-build.log
+          if-no-files-found: ignore
+
+      - name: Fail if build failed
+        if: steps.gradle_build.outcome != 'success'
+        run: exit 1
