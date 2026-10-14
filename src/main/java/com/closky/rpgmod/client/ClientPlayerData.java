@@ -1,6 +1,5 @@
 package com.closky.rpgmod.client;
 
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Копия прогресса игрока на клиенте (для HUD и экрана прокачки).
@@ -18,7 +17,6 @@ public final class ClientPlayerData {
     private ClientPlayerData() {}
 
     /** Сброс при выходе из мира: пока не придёт пакет с сервера, показываем значения по умолчанию. */
-    @ApiStatus.Internal
     public static void reset() {
         level = 1;
         statPoints = 0;
@@ -29,7 +27,6 @@ public final class ClientPlayerData {
         maxMana = 50.0F;
     }
 
-    @ApiStatus.Internal
     public static void set(int level, int statPoints, int spentStrength, int spentVitality,
                            int spentIntellect, float mana, float maxMana) {
         ClientPlayerData.level = level;

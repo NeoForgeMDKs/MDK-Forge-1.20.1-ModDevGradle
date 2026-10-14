@@ -87,10 +87,8 @@ public class HealSpell implements Spell {
                 target.removeEffect(MobEffects.WITHER);
                 target.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
             }
-            if (level instanceof ServerLevel serverLevel) {
-                serverLevel.sendParticles(element.getImpactParticle(), target.getX(), target.getY() + 1.0D, target.getZ(),
-                        6, 0.3D, 0.3D, 0.3D, 0.01D);
-            }
+            level.sendParticles(element.getImpactParticle(), target.getX(), target.getY() + 1.0D, target.getZ(),
+                    6, 0.3D, 0.3D, 0.3D, 0.01D);
         }
     }
 }

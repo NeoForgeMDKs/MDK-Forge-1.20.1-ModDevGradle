@@ -57,11 +57,11 @@ public final class EnemyLevelHelper {
         double dz = z - spawn.getZ();
         double distanceChunks = Math.sqrt(dx * dx + dz * dz) / 16.0D;
         int spread = RpgConfig.ENEMY_LEVEL_RANDOM_SPREAD.get();
-        int level = base + (int) (distanceChunks * perChunk);
+        int rolled = base + (int) (distanceChunks * perChunk);
         if (spread > 0) {
-            level += random.nextInt(spread * 2 + 1) - spread;
+            rolled += random.nextInt(spread * 2 + 1) - spread;
         }
-        return Math.max(1, Math.min(level, RpgConfig.MAX_RPG_LEVEL.get()));
+        return Math.max(1, Math.min(rolled, RpgConfig.MAX_RPG_LEVEL.get()));
     }
 
     /** Проставить уровень и пересчитать атрибуты моба. */
