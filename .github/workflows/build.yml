@@ -1,6 +1,9 @@
 name: Build
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:  # ручной запуск кнопкой Actions -> Build -> Run workflow
 
 jobs:
   build:
@@ -21,5 +24,111 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Validate assets (lang, models, data JSON, structures)
+        run: python3 tools/validate_assets.py
+
+      # Сборка. continue-on-error нужен, чтобы следующие шаги успели напечатать ошибки
+      # компиляции в аннотации (их читает и человек, и API — без входа в GitHub).
       - name: Build with Gradle
-        run: ./gradlew build
+        id: gradle_build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew build 2>&1 | tee gradle-build.log
+
+      - name: Report build errors
+        if: steps.gradle_build.outcome != 'success'
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re, pathlib
+
+          log_path = pathlib.Path("gradle-build.log")
+          lines = log_path.read_text(errors="replace").splitlines() if log_path.exists() else []
+
+          start = re.compile(r"error:|\.java:\d+:|What went wrong|> Task .*FAILED|FAILURE:|Execution failed|Could not resolve")
+          detail = re.compile(r"^\s*(symbol:|location:|required:|found:|reason:|Caused by:|> |note:)")
+
+          blocks = []
+          index = 0
+          while index < len(lines):
+              if start.search(lines[index]):
+                  chunk = [lines[index].strip()]
+                  cursor = index + 1
+                  while cursor < len(lines) and len(chunk) < 5 and (detail.search(lines[cursor]) or lines[cursor].strip().startswith("^")):
+                      if lines[cursor].strip():
+                          chunk.append(lines[cursor].strip())
+                      cursor += 1
+                  blocks.append(" | ".join(chunk))
+                  index = cursor
+              else:
+                  index += 1
+
+          if not blocks:
+              blocks = [" | ".join(line.strip() for line in lines[-80:] if line.strip())]
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary:
+              with open(summary, "a", encoding="utf-8") as handle:
+                  handle.write("## Ошибки сборки (" + str(len(blocks)) + ")\n\n```\n" + "\n".join(blocks[:200]) + "\n```\n")
+
+          print(f"Блоков с ошибками: {len(blocks)}")
+          for block in blocks[:45]:
+              print("::error::" + block[:900])
+          PY
+
+      # Дамп точных сигнатур Minecraft API: помогает чинить ошибки компиляции,
+      # не заглядывая в исходники (в песочнице их нет).
+      - name: Dump Minecraft API signatures
+        if: steps.gradle_build.outcome != 'success'
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "Ищу артефакты Minecraft (build/moddev):"
+          ls -la build/moddev 2>/dev/null || true
+          find build -name "*.jar" 2>/dev/null | head -20 || true
+
+          JAR=""
+          for candidate in $(find build -name "*.jar" 2>/dev/null | head -50); do
+            if unzip -l "$candidate" 2>/dev/null | grep -q "net/minecraft/world/damagesource/DamageSources.class"; then
+              JAR="$candidate"; break
+            fi
+          done
+          echo "JAR с классами Minecraft: ${JAR:-не найден}"
+          if [ -z "$JAR" ]; then exit 0; fi
+
+          {
+            javap -p -classpath "$JAR" net.minecraft.world.damagesource.DamageSources 2>&1 | head -60
+            echo "@@@"
+            javap -p -classpath "$JAR" net.minecraft.world.entity.npc.VillagerTrades 2>&1 | head -60
+            echo "@@@"
+            javap -p -classpath "$JAR" net.minecraft.world.item.trading.MerchantOffer 2>&1 | grep -E "public|class " | head -25
+          } > api-dump.txt 2>&1 || true
+
+          python3 - <<'PY'
+          import pathlib
+          text = pathlib.Path("api-dump.txt").read_text(errors="replace")
+          keep = [line.strip() for line in text.splitlines()
+                  if line.strip() and ("source(" in line or line.strip().endswith(";")
+                                       or "class " in line or "interface " in line)]
+          # фильтруем болтливые строки, оставляя интересное
+          interesting = [line for line in keep if any(token in line for token in
+                         ("DamageSources", "VillagerTrades", "MerchantOffer", "source(", "getOffer", "ItemListing", "ItemsForEmeralds", "@@@" ))]
+          for line in interesting[:60]:
+              print("::error::API " + line[:500])
+          PY
+
+      - name: Upload build log
+        if: steps.gradle_build.outcome != 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: |
+            gradle-build.log
+            api-dump.txt
+          if-no-files-found: ignore
+
+      - name: Fail if build failed
+        if: steps.gradle_build.outcome != 'success'
+        run: exit 1

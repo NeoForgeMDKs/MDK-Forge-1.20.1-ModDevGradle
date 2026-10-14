@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 40,
+    "separation": 18,
+    "salt": 710001
+  },
+  "structures": [
+    {
+      "structure": "rpgmod:dungeon_labyrinth",
+      "weight": 1
+    }
+  ]
+}

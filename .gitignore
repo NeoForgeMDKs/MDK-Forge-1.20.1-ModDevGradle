@@ -24,3 +24,8 @@ runs
 run-data
 
 repo
+
+# скрипты генерации ассетов
+tools/.cache
+tools/__pycache__
+__pycache__

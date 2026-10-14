@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "entries": [
+    "rpgmod:weapon_stronghold",
+    "rpgmod:weapon_ruined_portal",
+    "rpgmod:weapon_nether",
+    "rpgmod:weapon_end",
+    "rpgmod:weapon_bonus_chest"
+  ]
+}

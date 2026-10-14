@@ -1,0 +1,20 @@
+{
+  "type": "rpgmod:add_weapon",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/end_city_treasure"
+    },
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/ancient_city"
+    },
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table": "minecraft:chests/ancient_city_ice_box"
+    }
+  ],
+  "min_level": 8,
+  "max_level": 15,
+  "hone_chance": 0.6
+}
